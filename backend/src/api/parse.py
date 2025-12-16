@@ -56,10 +56,7 @@ async def parse_documents(
         "vlm-vllm-engine",
         "vlm-lmdeploy-engine",
         "vlm-http-client",
-    ] = Form(
-        "pipeline",
-        description="Backend engine",
-    ),
+    ] = Form("pipeline", description="Backend engine (options: " + ", ".join(BACKEND_OPTIONS) + ")"),
     start_page: Optional[int] = Form(None),
     end_page: Optional[int] = Form(None),
     formula_enable: bool = Form(True),
