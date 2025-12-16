@@ -3,7 +3,7 @@
 **Branch**: `[###-feature-name]` | **Date**: [DATE] | **Spec**: [link]
 **Input**: Feature specification from `/specs/[###-feature-name]/spec.md`
 
-**Note**: This template is filled in by the `/speckit.plan` command. See `.specify/templates/commands/plan.md` for the execution workflow.
+**Note**: This template is filled in by the `/speckit.plan` command. See `.github/prompts/speckit.plan.prompt.md` for the execution workflow.
 
 ## Summary
 
@@ -31,7 +31,13 @@
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-[Gates determined based on constitution file]
+- **Architecture boundaries**: Modules, ownership, and interfaces are identified; no cross-layer leakage.
+- **Test-first plan**: Unit, contract, and integration tests defined per story with >=85% coverage targets for changed code.
+- **Contracts & versioning**: APIs/CLIs/events specify inputs/outputs/errors plus semantic version and migration notes.
+- **Documentation**: Planned updates to spec/plan/tasks and public docs are listed in the same iteration.
+- **Observability**: Logs, metrics, health checks, and SLO/SLA validation steps are included.
+- **Security & data handling**: Secrets management, least-privilege access, data classification, and CVE handling are covered.
+- **Quality gates**: CI enforces lint/format/tests/contract checks/coverage; required reviewers are assigned.
 
 ## Project Structure
 

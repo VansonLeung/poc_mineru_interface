@@ -1,50 +1,63 @@
-# [PROJECT_NAME] Constitution
-<!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
+<!--
+Sync Impact Report
+Version change: N/A -> 1.0.0
+Modified principles: Initial publication
+Added sections: Core Principles; Security & Data Handling; Development Workflow & Quality Gates; Governance
+Removed sections: None
+Templates requiring updates: ✅ .specify/templates/plan-template.md | ✅ .specify/templates/spec-template.md | ✅ .specify/templates/tasks-template.md
+Follow-up TODOs: None
+-->
+
+# POC Mineru Interface Constitution
 
 ## Core Principles
 
-### [PRINCIPLE_1_NAME]
-<!-- Example: I. Library-First -->
-[PRINCIPLE_1_DESCRIPTION]
-<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
+### I. Modular Architecture & Separation of Concerns
+- Each component has a single responsibility with boundaries defined via interfaces or contracts.
+- Shared code lives in libraries/packages with clear ownership; avoid cross-layer leakage or hidden coupling.
+- No feature merges without updating the module map and ownership notes when boundaries change.
+Rationale: Keeps the system understandable, testable, and safe to modify.
 
-### [PRINCIPLE_2_NAME]
-<!-- Example: II. CLI Interface -->
-[PRINCIPLE_2_DESCRIPTION]
-<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
+### II. Test-First Delivery
+- Tests are authored before or alongside code; merges require unit, contract, and integration coverage as applicable.
+- Minimum 85% coverage on changed code; critical paths need dedicated regression suites.
+- Failing tests block merges; manual verification never substitutes for automated checks.
+Rationale: Ensures predictable quality and enables confident iteration.
 
-### [PRINCIPLE_3_NAME]
-<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
-[PRINCIPLE_3_DESCRIPTION]
-<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
+### III. API & Contract Clarity
+- Every interface (API/CLI/event) defines inputs, outputs, errors, and versioning using semantic versioning.
+- Breaking changes require a new version plus migration notes; favor backward-compatible defaults.
+- Contract tests guard interfaces; schemas live in-repo and are referenced by specs and plans.
+Rationale: Prevents integration drift and protects consumers.
 
-### [PRINCIPLE_4_NAME]
-<!-- Example: IV. Integration Testing -->
-[PRINCIPLE_4_DESCRIPTION]
-<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
+### IV. Documentation & Traceability
+- Plans, specs, and tasks reflect current decisions; changes include concise rationale (ADR or inline note).
+- Public-facing docs are updated with behavioral changes in the same PR as the code.
+- Code comments document non-obvious decisions rather than restating implementation.
+Rationale: Keeps context durable and onboarding fast.
 
-### [PRINCIPLE_5_NAME]
-<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
-[PRINCIPLE_5_DESCRIPTION]
-<!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
+### V. Observability & Operational Readiness
+- Structured logs, metrics, and health checks are required for new services and major features.
+- Error handling must emit actionable signals; alerts map to documented runbooks.
+- Non-functional requirements (latency, throughput, limits) are captured and verified before release.
+Rationale: Enables detection, triage, and reliable operation.
 
-## [SECTION_2_NAME]
-<!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
+## Security & Data Handling
+- Enforce least-privilege access for services and developers; secrets are never committed and are managed via vault/env tooling.
+- Document data classification; PII/PHI flows use redaction and purpose-limited logging.
+- Dependencies are scanned for vulnerabilities; critical CVEs are patched before release.
 
-[SECTION_2_CONTENT]
-<!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
-
-## [SECTION_3_NAME]
-<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
-
-[SECTION_3_CONTENT]
-<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
+## Development Workflow & Quality Gates
+- Every PR references relevant plan/spec/tasks; diffs must show tests and docs updated together.
+- CI enforces lint, formatting, tests, contract checks, and coverage thresholds before merge.
+- Reviews require at least one maintainer approval; architectural deviations need explicit sign-off.
+- Feature toggles or migrations include rollout/rollback steps and observability hooks.
 
 ## Governance
-<!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
+- This constitution supersedes other guidelines where conflicts occur.
+- Amendments occur via PR citing rationale, scope, impact, and migration needs; update templates in the same PR.
+- Versioning: MAJOR for removals or breaking governance/principle changes; MINOR for new principles or significant expansions; PATCH for clarifications or wording fixes.
+- Compliance: Quarterly review of adherence; blockers are documented with remediation plans.
+- Runtime guidance lives alongside this file; keep plan, spec, and tasks templates synchronized with principles.
 
-[GOVERNANCE_RULES]
-<!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
-
-**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
-<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->
+**Version**: 1.0.0 | **Ratified**: 2025-12-16 | **Last Amended**: 2025-12-16

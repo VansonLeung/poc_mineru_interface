@@ -100,6 +100,32 @@
 - **[Entity 1]**: [What it represents, key attributes without implementation]
 - **[Entity 2]**: [What it represents, relationships to other entities]
 
+## Architecture & Contracts *(mandatory)*
+
+- **System boundaries**: [List modules/services/packages and their responsibilities]
+- **Interfaces**: [APIs/CLIs/events with inputs, outputs, errors, semantic version]
+- **Compatibility**: [Backward-compatibility expectations and migration notes]
+- **Data flows**: [How data moves between boundaries; note PII/PHI paths]
+
+## Testing Strategy *(mandatory)*
+
+- **Planned tests**: [Unit, contract, integration, end-to-end mapped to user stories]
+- **Coverage targets**: [>=85% for changed code; regression suites for critical paths]
+- **Failure-first**: [How tests will be written to fail before implementation]
+
+## Observability & Operational Readiness *(mandatory)*
+
+- **Telemetry**: [Structured logs, metrics, and traces required for the feature]
+- **Health**: [Health checks, alert thresholds, SLO/SLA expectations]
+- **Runbooks**: [Rollout/rollback steps and on-call playbooks]
+
+## Security & Data Handling *(mandatory)*
+
+- **Access model**: [Least-privilege roles, authn/authz expectations]
+- **Secrets**: [How secrets/config are managed; never committed]
+- **Data classification**: [PII/PHI handling, redaction, retention]
+- **Supply chain**: [Dependency scanning and CVE response approach]
+
 ## Success Criteria *(mandatory)*
 
 <!--

@@ -1,0 +1,105 @@
+openapi: 3.0.3
+info:
+  title: Miner-U Parse API
+  version: 1.0.0
+paths:
+  /api/v1/parse:
+    post:
+      summary: Parse uploaded PDFs or images with Miner-U and return Markdown/JSON outputs synchronously.
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                files:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+                  minItems: 1
+                  description: One or more PDF/image files.
+                lang:
+                  type: string
+                  description: Language hint (e.g., ch, en, korean).
+                parse_method:
+                  type: string
+                  enum: [auto, txt, ocr]
+                  default: auto
+                backend:
+                  type: string
+                  enum: [pipeline, vlm-transformers, vlm-vllm-engine, vlm-http-client, vlm-mlx-engine, vlm-lmdeploy-engine]
+                  default: pipeline
+                start_page:
+                  type: integer
+                  minimum: 0
+                end_page:
+                  type: integer
+                  minimum: 0
+                formula_enable:
+                  type: boolean
+                  default: true
+                table_enable:
+                  type: boolean
+                  default: true
+              required:
+                - files
+      responses:
+        '200':
+          description: Parse succeeded.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  outputs:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        filename: { type: string }
+                        markdown: { type: string, nullable: true }
+                        markdown_url: { type: string, nullable: true }
+                        content_list_json: { type: object, nullable: true }
+                        content_list_url: { type: string, nullable: true }
+                        middle_json: { type: object, nullable: true }
+                        middle_json_url: { type: string, nullable: true }
+                        model_output_json: { type: object, nullable: true }
+                        model_output_url: { type: string, nullable: true }
+                        storage_expiry: { type: string, format: date-time }
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        filename: { type: string }
+                        message: { type: string }
+                  request_id: { type: string }
+        '400':
+          description: Bad request (validation failure).
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  detail: { type: string }
+                  request_id: { type: string }
+        '413':
+          description: Payload too large or too many pages.
+        '500':
+          description: Internal server error during parsing.
+  /health:
+    get:
+      summary: Readiness and liveness signal.
+      responses:
+        '200':
+          description: Service healthy.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: { type: string, example: ok }
+                  mineru_ready: { type: boolean }
+                  timestamp: { type: string, format: date-time }
