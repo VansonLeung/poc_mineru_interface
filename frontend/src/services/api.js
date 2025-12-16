@@ -7,6 +7,7 @@ export async function parseFiles(files, options = {}) {
   if (options.lang) formData.append('lang', options.lang);
   if (options.parseMethod) formData.append('parse_method', options.parseMethod);
   if (options.backend) formData.append('backend', options.backend);
+  if (options.serverUrl) formData.append('server_url', options.serverUrl);
   if (typeof options.startPage === 'number') formData.append('start_page', String(options.startPage));
   if (typeof options.endPage === 'number') formData.append('end_page', String(options.endPage));
   if (typeof options.formulaEnable === 'boolean') formData.append('formula_enable', String(options.formulaEnable));

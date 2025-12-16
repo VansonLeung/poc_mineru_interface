@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import copy
 import json
+import os
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Iterable, List, Optional, TYPE_CHECKING
@@ -32,8 +33,12 @@ class MineruAdapter:
     """Thin wrapper around Miner-U demo script to parse bytes and return output file paths."""
 
     def __init__(self, output_dir: str | Path | None = None) -> None:
-        settings = get_settings()
-        self.output_dir = Path(output_dir or settings.output_base_path)
+        self.settings = get_settings()
+        # Ensure Miner-U respects configured model source
+        if "MINERU_MODEL_SOURCE" not in os.environ and self.settings.mineru_model_source:
+            os.environ["MINERU_MODEL_SOURCE"] = self.settings.mineru_model_source
+
+        self.output_dir = Path(output_dir or self.settings.output_base_path)
         self.output_dir.mkdir(parents=True, exist_ok=True)
 
     def parse_from_paths(
@@ -148,6 +153,23 @@ class MineruAdapter:
         else:
             backend_name = backend[4:] if backend.startswith("vlm-") else backend
             parse_method = "vlm"
+            # Fail fast when local model source is selected but config is missing
+            if os.getenv("MINERU_MODEL_SOURCE", "") == "local":
+                try:
+                    from mineru.utils.config_reader import get_local_models_dir
+
+                    models_dir = get_local_models_dir()
+                    if not models_dir or not isinstance(models_dir, dict) or "vlm" not in models_dir:
+                        raise MineruUnavailableError(
+                            "MINERU_MODEL_SOURCE=local requires ~/mineru.json with models-dir.vlm path configured",
+                        )
+                except MineruUnavailableError:
+                    raise
+                except Exception as exc:  # noqa: BLE001
+                    raise MineruUnavailableError(
+                        "Failed to read Miner-U local model config for VLM backend",
+                    ) from exc
+
             for idx, pdf_bytes in enumerate(pdf_bytes_list):
                 filename = file_names[idx]
                 pdf_bytes = convert_pdf_bytes_to_bytes_by_pypdfium2(pdf_bytes, start_page, end_page)

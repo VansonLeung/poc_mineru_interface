@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import asyncio
 import io
+import shutil
+import subprocess
 import tempfile
 import uuid
 from dataclasses import dataclass
@@ -69,10 +71,10 @@ class ParseService:
                 table_enable=params.table_enable,
             )
         except MineruUnavailableError as exc:
-            logger.warning(f"Miner-U dependencies missing: {exc}")
+            logger.warning(f"Miner-U unavailable: {exc}")
             raise HTTPException(
                 status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-                detail="Miner-U not installed (install torch/mineru extras)",
+                detail=str(exc),
             ) from exc
         except HTTPException:
             raise
@@ -117,23 +119,42 @@ class ParseService:
         return normalized
 
     def _convert_doc_to_pdf(self, filename: str, data: bytes) -> bytes:
-        try:
-            from docx2pdf import convert
-        except ImportError as exc:
-            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="DOCX support unavailable") from exc
+        docx_error: Exception | None = None
 
         with tempfile.TemporaryDirectory() as tmpdir:
             src_path = Path(tmpdir) / filename
             pdf_path = Path(tmpdir) / (Path(filename).stem + ".pdf")
             src_path.write_bytes(data)
+
             try:
+                from docx2pdf import convert
+
                 convert(str(src_path), str(pdf_path))
             except Exception as exc:  # noqa: BLE001
-                logger.warning("DOCX to PDF conversion failed: %s", exc)
-                raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Failed to convert DOCX to PDF") from exc
-            if not pdf_path.exists():
-                raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Failed to convert DOCX to PDF")
-            return pdf_path.read_bytes()
+                docx_error = exc
+                logger.warning("DOCX to PDF via docx2pdf failed: %s", exc)
+            if pdf_path.exists():
+                return pdf_path.read_bytes()
+
+            # Fallback to LibreOffice/soffice if available
+            soffice_bin = shutil.which("soffice") or shutil.which("libreoffice")
+            if soffice_bin:
+                try:
+                    subprocess.run(
+                        [soffice_bin, "--headless", "--convert-to", "pdf", str(src_path), "--outdir", tmpdir],
+                        check=True,
+                        stdout=subprocess.PIPE,
+                        stderr=subprocess.PIPE,
+                    )
+                except subprocess.CalledProcessError as exc:  # noqa: PERF203
+                    logger.warning("DOCX to PDF via LibreOffice failed: %s", exc)
+                if pdf_path.exists():
+                    return pdf_path.read_bytes()
+
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Failed to convert DOCX to PDF (requires Word on macOS or LibreOffice)",
+        ) from docx_error
 
     def _convert_image_to_pdf(self, filename: str, data: bytes) -> bytes:
         try:
