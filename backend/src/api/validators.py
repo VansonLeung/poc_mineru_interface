@@ -14,8 +14,10 @@ ALLOWED_MIME_TYPES = {
     "image/webp",
     "image/gif",
     "image/bmp",
+    "application/msword",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
 }
-ALLOWED_EXTENSIONS = {"pdf", "png", "jpeg", "jpg", "jp2", "webp", "gif", "bmp"}
+ALLOWED_EXTENSIONS = {"pdf", "png", "jpeg", "jpg", "jp2", "webp", "gif", "bmp", "doc", "docx"}
 
 
 def _is_allowed(upload: UploadFile) -> bool:

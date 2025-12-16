@@ -1,8 +1,11 @@
 from __future__ import annotations
 
 import asyncio
+import io
+import tempfile
 import uuid
 from dataclasses import dataclass
+from pathlib import Path
 from typing import List, Tuple
 
 from fastapi import HTTPException, UploadFile, status
@@ -41,13 +44,21 @@ class ParseService:
         validate_pages(params.start_page, params.end_page, self.settings)
 
         file_bytes = await self._read_files(files)
+        normalized_files = self._normalize_inputs(file_bytes)
+        logger.opt(colors=True).info(
+            "<cyan>parse request</cyan> lang={lang} backend={backend} parse_method={method} files={files}",
+            lang=params.lang,
+            backend=params.backend,
+            method=params.parse_method,
+            files=[name for name, _ in normalized_files],
+        )
         job_id = uuid.uuid4().hex
         adapter = MineruAdapter(output_dir=self.storage.job_dir(job_id))
 
         try:
             mineru_outputs = await asyncio.to_thread(
                 adapter.parse_from_bytes,
-                file_bytes,
+                normalized_files,
                 lang=params.lang,
                 backend=params.backend,
                 parse_method=params.parse_method,
@@ -71,6 +82,12 @@ class ParseService:
 
         builder = OutputBuilder(storage=self.storage)
         outputs = builder.build(job_id=job_id, mineru_outputs=mineru_outputs)
+        logger.opt(colors=True).info(
+            "<green>parse success</green> job_id={job} outputs={outputs} errors={errors}",
+            job=job_id,
+            outputs=[out.get("filename") for out in outputs],
+            errors=[],
+        )
         self.storage.cleanup_if_needed()
         return outputs, []
 
@@ -82,3 +99,55 @@ class ParseService:
                 raise HTTPException(status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE, detail="File too large")
             results.append((upload.filename, data))
         return results
+
+    def _normalize_inputs(self, files: list[Tuple[str, bytes]]) -> list[Tuple[str, bytes]]:
+        """Convert doc/docx to PDF bytes so Miner-U can parse, keep other formats as-is."""
+        normalized: list[Tuple[str, bytes]] = []
+        for name, data in files:
+            suffix = (name or "").rsplit(".", 1)[-1].lower()
+            stem = Path(name).stem if name else "file"
+            if suffix in {"doc", "docx"}:
+                pdf_bytes = self._convert_doc_to_pdf(name, data)
+                normalized.append((f"{stem}.pdf", pdf_bytes))
+            elif suffix in {"png", "jpg", "jpeg", "bmp", "gif", "webp", "jp2"}:
+                pdf_bytes = self._convert_image_to_pdf(name, data)
+                normalized.append((f"{stem}.pdf", pdf_bytes))
+            else:
+                normalized.append((name, data))
+        return normalized
+
+    def _convert_doc_to_pdf(self, filename: str, data: bytes) -> bytes:
+        try:
+            from docx2pdf import convert
+        except ImportError as exc:
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="DOCX support unavailable") from exc
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            src_path = Path(tmpdir) / filename
+            pdf_path = Path(tmpdir) / (Path(filename).stem + ".pdf")
+            src_path.write_bytes(data)
+            try:
+                convert(str(src_path), str(pdf_path))
+            except Exception as exc:  # noqa: BLE001
+                logger.warning("DOCX to PDF conversion failed: %s", exc)
+                raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Failed to convert DOCX to PDF") from exc
+            if not pdf_path.exists():
+                raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Failed to convert DOCX to PDF")
+            return pdf_path.read_bytes()
+
+    def _convert_image_to_pdf(self, filename: str, data: bytes) -> bytes:
+        try:
+            from PIL import Image
+        except ImportError as exc:
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Image support unavailable") from exc
+
+        try:
+            with Image.open(io.BytesIO(data)) as img:
+                rgb = img.convert("RGB")
+                with tempfile.TemporaryDirectory() as tmpdir:
+                    pdf_path = Path(tmpdir) / (Path(filename).stem + ".pdf")
+                    rgb.save(pdf_path, format="PDF")
+                    return pdf_path.read_bytes()
+        except Exception as exc:  # noqa: BLE001
+            logger.warning("Image to PDF conversion failed: %s", exc)
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Failed to convert image to PDF") from exc
