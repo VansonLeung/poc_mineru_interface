@@ -14,6 +14,7 @@ class Settings(BaseSettings):
     max_files: int = 5
 
     app_port: int = 19833
+    output_base_path: str = "/tmp/mineru-outputs"
     output_ttl_hours: int = 24
 
     mineru_model_source: str = "local"

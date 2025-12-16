@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import inspect
-from typing import List, Optional
+from typing import List, Optional, Literal
 
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status
 
@@ -9,6 +9,15 @@ from src.api.deps.auth import require_api_key
 from src.config.settings import get_settings
 from src.observability.logging import get_request_id
 from src.services.parse_service import ParseParams, ParseService
+
+BACKEND_OPTIONS = [
+    "pipeline",
+    "vlm-transformers",
+    "vlm-mlx-engine",
+    "vlm-vllm-engine",
+    "vlm-lmdeploy-engine",
+    "vlm-http-client",
+]
 
 router = APIRouter()
 
@@ -40,7 +49,17 @@ async def parse_documents(
     files: List[UploadFile] = File(..., description="Upload one or more PDF/image/DOC/DOCX files"),
     lang: str = Form("ch"),
     parse_method: str = Form("auto"),
-    backend: str = Form("pipeline"),
+    backend: Literal[
+        "pipeline",
+        "vlm-transformers",
+        "vlm-mlx-engine",
+        "vlm-vllm-engine",
+        "vlm-lmdeploy-engine",
+        "vlm-http-client",
+    ] = Form(
+        "pipeline",
+        description="Backend engine",
+    ),
     start_page: Optional[int] = Form(None),
     end_page: Optional[int] = Form(None),
     formula_enable: bool = Form(True),

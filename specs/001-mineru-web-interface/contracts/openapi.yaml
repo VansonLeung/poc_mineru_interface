@@ -38,7 +38,7 @@ paths:
                   default: auto
                 backend:
                   type: string
-                  enum: [pipeline, vlm-transformers, vlm-vllm-engine, vlm-http-client, vlm-mlx-engine, vlm-lmdeploy-engine]
+                  enum: [pipeline, vlm-transformers, vlm-mlx-engine, vlm-vllm-engine, vlm-lmdeploy-engine, vlm-http-client]
                   default: pipeline
                 start_page:
                   type: integer
