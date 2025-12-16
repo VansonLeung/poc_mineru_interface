@@ -1,0 +1,31 @@
+# Exclude VCS
+.git
+.gitignore
+
+# Node / Frontend
+node_modules/
+dist/
+build/
+coverage/
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyd
+.venv/
+venv/
+
+# Env & secrets
+.env
+.env.*
+
+# Logs & temp
+*.log
+.tmp/
+tmp/
+
+# Editor/OS
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

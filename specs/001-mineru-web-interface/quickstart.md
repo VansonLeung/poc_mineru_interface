@@ -11,16 +11,20 @@
 cd backend
 uv venv .venv
 source .venv/bin/activate
-uv pip install fastapi uvicorn loguru httpx pytest pytest-asyncio pydantic mineru==2.6.8
+uv pip install .[dev]
 uvicorn src.main:app --reload
 ```
 
-## Frontend setup (if using SPA)
+## Frontend setup (SPA)
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
+
+## Environment
+- Copy `backend/.env.example` to `backend/.env` and adjust limits or API key (`API_KEY_REQUIRED`, `API_KEY_VALUE`).
+- Default CORS is allow-all, credentials=false.
 
 ## API usage
 ```bash
@@ -38,10 +42,15 @@ curl http://localhost:8000/health
 
 ## Tests
 ```bash
+# Backend
 cd backend
-pytest
-# Optional UI e2e (Playwright)
+uv run pytest --cov=src --cov-report=term-missing
+
+# Frontend unit
 cd ../frontend
+npm test -- --coverage
+
+# Frontend e2e (needs dev server)
 npm run test:e2e
 ```
 

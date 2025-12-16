@@ -6,6 +6,13 @@ paths:
   /api/v1/parse:
     post:
       summary: Parse uploaded PDFs or images with Miner-U and return Markdown/JSON outputs synchronously.
+      parameters:
+        - in: header
+          name: X-API-Key
+          required: false
+          schema:
+            type: string
+          description: Optional API key when enabled.
       requestBody:
         required: true
         content:

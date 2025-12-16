@@ -9,12 +9,12 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create backend project structure per plan in `backend/src/{api,services,models,config,observability}`
-- [ ] T002 Create frontend project structure per plan in `frontend/src/{components,pages,services}`
-- [ ] T003 [P] Initialize Python tooling (uv/pyproject) with FastAPI, Miner-U 2.6.8, pytest in `backend/pyproject.toml`
-- [ ] T004 [P] Add environment samples with limits/CORS settings in `backend/.env.example`
-- [ ] T004a [P] Configure CI workflow (lint, format, tests, contract tests, coverage ≥85%) in `.github/workflows/ci.yml`
-- [ ] T004b [P] Select and scaffold frontend stack (React + Vite, JavaScript) with lint/test scripts in `frontend/` (package.json, tooling)
+- [X] T001 Create backend project structure per plan in `backend/src/{api,services,models,config,observability}`
+- [X] T002 Create frontend project structure per plan in `frontend/src/{components,pages,services}`
+- [X] T003 [P] Initialize Python tooling (uv/pyproject) with FastAPI, Miner-U 2.6.8, pytest in `backend/pyproject.toml`
+- [X] T004 [P] Add environment samples with limits/CORS settings in `backend/.env.example`
+- [X] T004a [P] Configure CI workflow (lint, format, tests, contract tests, coverage ≥85%) in `.github/workflows/ci.yml`
+- [X] T004b [P] Select and scaffold frontend stack (React + Vite, JavaScript) with lint/test scripts in `frontend/` (package.json, tooling)
 
 ---
 
@@ -22,12 +22,12 @@
 
 **Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
 
-- [ ] T005 Implement config/settings (CORS allow-all, size/page limits, temp paths) in `backend/src/config/settings.py`
-- [ ] T006 [P] Add logging/observability scaffold (request_id, log formatting) in `backend/src/observability/logging.py`
-- [ ] T007 [P] Implement temp storage helper for outputs with expiry in `backend/src/services/storage.py`
-- [ ] T008 [P] Create Miner-U adapter wrapper using `_references/mineru_demo.py` patterns in `backend/src/services/mineru_adapter.py`
-- [ ] T009 Setup test harness (pytest, httpx client, fixtures) in `backend/tests/conftest.py`
-- [ ] T010 [P] Add frontend API client stub for parse calls in `frontend/src/services/api.js`
+- [X] T005 Implement config/settings (CORS allow-all, size/page limits, temp paths) in `backend/src/config/settings.py`
+- [X] T006 [P] Add logging/observability scaffold (request_id, log formatting) in `backend/src/observability/logging.py`
+- [X] T007 [P] Implement temp storage helper for outputs with expiry in `backend/src/services/storage.py`
+- [X] T008 [P] Create Miner-U adapter wrapper using `_references/mineru_demo.py` patterns in `backend/src/services/mineru_adapter.py`
+- [X] T009 Setup test harness (pytest, httpx client, fixtures) in `backend/tests/conftest.py`
+- [X] T010 [P] Add frontend API client stub for parse calls in `frontend/src/services/api.js`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -43,18 +43,18 @@
 
 > Write these tests FIRST and ensure they FAIL before implementation. Target >=85% coverage on changed code.
 
-- [ ] T011 [P] [US1] Integration test for upload→parse flow hitting backend API in `backend/tests/integration/test_ui_flow.py`
-- [ ] T012 [P] [US1] E2E test (Playwright) for UI upload→download in `frontend/tests/e2e/upload.spec.js`
+- [X] T011 [P] [US1] Integration test for upload→parse flow hitting backend API in `backend/tests/integration/test_ui_flow.py`
+- [X] T012 [P] [US1] E2E test (Playwright) for UI upload→download in `frontend/tests/e2e/upload.spec.js`
 
 ### Implementation for User Story 1
 
-- [ ] T013 [P] [US1] Build upload form component with drag/drop, progress, and result list in `frontend/src/components/UploadForm.jsx`
-- [ ] T014 [US1] Wire main page to call API client, show per-file status, and render download links in `frontend/src/pages/index.jsx`
-- [ ] T015 [US1] Implement synchronous `POST /api/v1/parse` route (multipart) in `backend/src/api/parse.py`
-- [ ] T016 [US1] Implement parse orchestration service (validation, Miner-U call, output bundle) in `backend/src/services/parse_service.py`
-- [ ] T017 [US1] Add request/response validators (MIME allowlist, size/page limits) in `backend/src/api/validators.py`
-- [ ] T018 [US1] Add output builder (markdown/content_list/middle/model JSON) with temp storage write in `backend/src/services/output_builder.py`
-- [ ] T019 [US1] Add error-handling middleware with request_id propagation in `backend/src/api/middleware.py`
+- [X] T013 [P] [US1] Build upload form component with drag/drop, progress, and result list in `frontend/src/components/UploadForm.jsx`
+- [X] T014 [US1] Wire main page to call API client, show per-file status, and render download links in `frontend/src/pages/index.jsx`
+- [X] T015 [US1] Implement synchronous `POST /api/v1/parse` route (multipart) in `backend/src/api/parse.py`
+- [X] T016 [US1] Implement parse orchestration service (validation, Miner-U call, output bundle) in `backend/src/services/parse_service.py`
+- [X] T017 [US1] Add request/response validators (MIME allowlist, size/page limits) in `backend/src/api/validators.py`
+- [X] T018 [US1] Add output builder (markdown/content_list/middle/model JSON) with temp storage write in `backend/src/services/output_builder.py`
+- [X] T019 [US1] Add error-handling middleware with request_id propagation in `backend/src/api/middleware.py`
 
 **Checkpoint**: UI-driven parsing delivers Markdown/JSON synchronously.
 
@@ -68,15 +68,15 @@
 
 ### Tests for User Story 2 (Required) ⚠️
 
-- [ ] T020 [P] [US2] Contract test for `POST /api/v1/parse` via tool-style request in `backend/tests/contract/test_dify_tool.py`
-- [ ] T021 [P] [US2] Negative contract tests for malformed/oversized requests in `backend/tests/contract/test_parse_errors.py`
-- [ ] T021a [P] [US2] Dify reliability/latency soak (>=50 runs) measuring success rate and latency vs SC-004 in `backend/tests/contract/test_dify_reliability.py`
+- [X] T020 [P] [US2] Contract test for `POST /api/v1/parse` via tool-style request in `backend/tests/contract/test_dify_tool.py`
+- [X] T021 [P] [US2] Negative contract tests for malformed/oversized requests in `backend/tests/contract/test_parse_errors.py`
+- [X] T021a [P] [US2] Dify reliability/latency soak (>=50 runs) measuring success rate and latency vs SC-004 in `backend/tests/contract/test_dify_reliability.py`
 
 ### Implementation for User Story 2
 
-- [ ] T022 [US2] Add optional API-key header guard (configurable) in `backend/src/api/deps/auth.py` and integrate in `parse.py`
-- [ ] T023 [US2] Provide Dify tool manifest/examples in `backend/docs/dify-tool.md`
-- [ ] T024 [US2] Enrich parse response schema (download URLs when payload large) and update OpenAPI in `backend/src/api/parse.py` and `contracts/openapi.yaml`
+- [X] T022 [US2] Add optional API-key header guard (configurable) in `backend/src/api/deps/auth.py` and integrate in `parse.py`
+- [X] T023 [US2] Provide Dify tool manifest/examples in `backend/docs/dify-tool.md`
+- [X] T024 [US2] Enrich parse response schema (download URLs when payload large) and update OpenAPI in `backend/src/api/parse.py` and `contracts/openapi.yaml`
 
 **Checkpoint**: Dify/tool consumers receive synchronous Markdown/JSON responses with clear error handling.
 
@@ -90,14 +90,14 @@
 
 ### Tests for User Story 3 (Required) ⚠️
 
-- [ ] T025 [P] [US3] Health/readiness endpoint test in `backend/tests/contract/test_health.py`
-- [ ] T026 [P] [US3] Metrics/logging behavior test for failed parse in `backend/tests/integration/test_observability.py`
+- [X] T025 [P] [US3] Health/readiness endpoint test in `backend/tests/contract/test_health.py`
+- [X] T026 [P] [US3] Metrics/logging behavior test for failed parse in `backend/tests/integration/test_observability.py`
 
 ### Implementation for User Story 3
 
-- [ ] T027 [US3] Implement `/health` reporting app and Miner-U readiness in `backend/src/api/health.py`
-- [ ] T028 [US3] Add metrics emitters (request counts, latency, failures) in `backend/src/observability/metrics.py` and wire into parse path
-- [ ] T029 [US3] Add runbook with rollback/cleanup steps in `docs/runbooks/mineru-parse.md`
+- [X] T027 [US3] Implement `/health` reporting app and Miner-U readiness in `backend/src/api/health.py`
+- [X] T028 [US3] Add metrics emitters (request counts, latency, failures) in `backend/src/observability/metrics.py` and wire into parse path
+- [X] T029 [US3] Add runbook with rollback/cleanup steps in `docs/runbooks/mineru-parse.md`
 
 **Checkpoint**: Health and observability are in place for monitoring and triage.
 
@@ -105,11 +105,11 @@
 
 ## Phase N: Polish & Cross-Cutting Concerns
 
-- [ ] T030 [P] Harden temp storage cleanup scheduling and configurable TTL in `backend/src/services/storage.py`
-- [ ] T031 [P] Documentation pass: update `quickstart.md` and README pointers for API/UI usage
-- [ ] T032 Security pass: verify secrets handling and dependency scan notes in `backend/SECURITY.md`
-- [ ] T033 Performance pass: benchmark typical PDF/image and note limits in `docs/perf-notes.md`
-- [ ] T034 [P] Automated latency test against SC-001 with sample PDF/image in `backend/tests/perf/test_latency.py`
+- [X] T030 [P] Harden temp storage cleanup scheduling and configurable TTL in `backend/src/services/storage.py`
+- [X] T031 [P] Documentation pass: update `quickstart.md` and README pointers for API/UI usage
+- [X] T032 Security pass: verify secrets handling and dependency scan notes in `backend/SECURITY.md`
+- [X] T033 Performance pass: benchmark typical PDF/image and note limits in `docs/perf-notes.md`
+- [X] T034 [P] Automated latency test against SC-001 with sample PDF/image in `backend/tests/perf/test_latency.py`
 
 ---
 
