@@ -13,10 +13,11 @@ class Settings(BaseSettings):
     max_pages: int = 50
     max_files: int = 5
 
-    output_base_path: str = "/tmp/mineru-outputs"
+    app_port: int = 19833
     output_ttl_hours: int = 24
 
     mineru_model_source: str = "local"
+    swagger_server_url: str = "http://localhost:19833"
 
     api_key_required: bool = False
     api_key_value: str | None = None

@@ -29,6 +29,10 @@ main.page {
   border-bottom: 1px solid #e2e8f0;
   background: #ffffffcc;
   backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
 }
 
 .page__header h1 {
@@ -38,6 +42,11 @@ main.page {
 .page__header p {
   margin: 0;
   color: #475569;
+}
+
+.page__header-actions {
+  display: flex;
+  align-items: center;
 }
 
 .page__body {
@@ -107,6 +116,100 @@ main.page {
   display: flex;
   flex-direction: column;
   gap: 1rem;
+}
+
+.guide-card {
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  background: #f8fafc;
+  padding: 0.75rem 1rem;
+}
+
+.guide-card__header {
+  margin-bottom: 0.35rem;
+}
+
+.guide-card__content p {
+  margin: 0.35rem 0;
+  color: #0f172a;
+}
+
+.guide-card__code {
+  background: #0f172a;
+  color: #e2e8f0;
+  border-radius: 8px;
+  padding: 0.75rem;
+  white-space: pre-wrap;
+  font-size: 0.9rem;
+  margin: 0.35rem 0;
+}
+
+.guide-card__note {
+  color: #475569;
+  font-size: 0.95rem;
+}
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  z-index: 1000;
+}
+
+.modal {
+  background: #fff;
+  border-radius: 12px;
+  max-width: 720px;
+  width: 100%;
+  box-shadow: 0 20px 60px rgba(15, 23, 42, 0.25);
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.modal__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.modal__header h2 {
+  margin: 0;
+}
+
+.modal__body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.modal__body h3 {
+  margin: 0.4rem 0 0.2rem;
+  color: #0f172a;
+}
+
+.guide-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 0.75rem 1rem;
+}
+
+.guide-grid p {
+  margin: 0.2rem 0 0;
+}
+
+.guide-tip {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 0.65rem 0.75rem;
+  color: #0f172a;
 }
 
 .dropzone {

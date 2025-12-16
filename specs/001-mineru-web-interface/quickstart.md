@@ -28,7 +28,7 @@ npm run dev
 
 ## API usage
 ```bash
-curl -X POST http://localhost:8000/api/v1/parse \
+curl -X POST http://localhost:19833/api/v1/parse \
   -F "files=@/path/to/doc.pdf" \
   -F "parse_method=auto" \
   -F "backend=pipeline"
@@ -37,7 +37,7 @@ curl -X POST http://localhost:8000/api/v1/parse \
 
 ## Health check
 ```bash
-curl http://localhost:8000/health
+curl http://localhost:19833/health
 ```
 
 ## Tests

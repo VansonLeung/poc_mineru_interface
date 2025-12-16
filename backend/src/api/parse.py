@@ -37,7 +37,7 @@ async def _call_parse(service: ParseService, files: List[UploadFile], params: Pa
 
 @router.post("/parse")
 async def parse_documents(
-    files: Optional[List[UploadFile]] = File(None),
+    files: List[UploadFile] = File(..., description="Upload one or more PDF/image/DOC/DOCX files"),
     lang: str = Form("ch"),
     parse_method: str = Form("auto"),
     backend: str = Form("pipeline"),

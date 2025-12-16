@@ -1,7 +1,7 @@
 # Runbook: Miner-U Parse Service
 
 ## Diagnose
-1. Check health: `curl http://localhost:8000/health` and verify `status=ok`, `mineru_ready=true`, metrics counters rising.
+1. Check health: `curl http://localhost:19833/health` and verify `status=ok`, `mineru_ready=true`, metrics counters rising.
 2. Tail logs for request_id and errors: `tail -f backend/logs/app.log` (or service logs).
 3. Verify storage space in output path (default `/tmp/mineru-outputs`).
 4. Confirm API key settings if enabled: `API_KEY_REQUIRED`, `API_KEY_VALUE`.

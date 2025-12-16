@@ -1,11 +1,13 @@
 openapi: 3.0.3
 info:
-  title: Miner-U Parse API
+  title: Octopus Document Parse API
   version: 1.0.0
+servers:
+  - url: http://localhost:19833
 paths:
   /api/v1/parse:
     post:
-      summary: Parse uploaded PDFs or images with Miner-U and return Markdown/JSON outputs synchronously.
+      summary: Parse uploaded PDFs or images with Octopus Document Parse API and return Markdown/JSON outputs synchronously.
       parameters:
         - in: header
           name: X-API-Key
@@ -26,7 +28,7 @@ paths:
                     type: string
                     format: binary
                   minItems: 1
-                  description: One or more PDF/image files.
+                  description: One or more PDF/image/DOC/DOCX files.
                 lang:
                   type: string
                   description: Language hint (e.g., ch, en, korean).
