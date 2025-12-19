@@ -50,6 +50,14 @@ class ParseService:
             ttl_hours=self.settings.output_ttl_hours,
         )
 
+    def _get_adapter(self, job_id: str) -> MineruAdapter:
+        """Get MineruAdapter instance for a job."""
+        return MineruAdapter(output_dir=self.storage.job_dir(job_id))
+
+    def _get_output_builder(self) -> OutputBuilder:
+        """Get OutputBuilder instance."""
+        return OutputBuilder(storage=self.storage)
+
     async def parse(self, files: List[UploadFile], params: ParseParams) -> tuple[list[dict], list[dict]]:
         validate_files(files, self.settings)
         validate_pages(params.start_page, params.end_page, self.settings)

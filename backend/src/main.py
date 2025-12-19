@@ -5,7 +5,7 @@ from fastapi.openapi.utils import get_openapi
 
 from src.config.settings import get_settings
 from src.observability.logging import setup_logging
-from src.api import health, parse
+from src.api import health, parse, jobs
 from src.api.middleware import (
     RequestContextMiddleware,
     http_exception_handler,
@@ -32,6 +32,7 @@ def create_app() -> FastAPI:
 
     app.include_router(health.router)
     app.include_router(parse.router, prefix="/api/v1")
+    app.include_router(jobs.router, prefix="/api/v1")
 
     def custom_openapi():  # pragma: no cover - thin schema customization
         if app.openapi_schema:
