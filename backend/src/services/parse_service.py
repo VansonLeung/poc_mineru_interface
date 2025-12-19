@@ -34,6 +34,15 @@ class ParseParams:
 
 
 class ParseService:
+    _mlx_lock: asyncio.Lock | None = None
+
+    @classmethod
+    def _get_mlx_lock(cls) -> asyncio.Lock:
+        # Serialize MLX/VLM requests to avoid Metal driver instability on macOS.
+        if cls._mlx_lock is None:
+            cls._mlx_lock = asyncio.Lock()
+        return cls._mlx_lock
+
     def __init__(self, settings: Settings | None = None, storage: StorageManager | None = None) -> None:
         self.settings = settings or get_settings()
         self.storage = storage or StorageManager(
@@ -58,24 +67,48 @@ class ParseService:
         adapter = MineruAdapter(output_dir=self.storage.job_dir(job_id))
 
         try:
-            mineru_outputs = await asyncio.to_thread(
-                adapter.parse_from_bytes,
-                normalized_files,
-                lang=params.lang,
-                backend=params.backend,
-                parse_method=params.parse_method,
-                server_url=params.server_url,
-                start_page=params.start_page or 0,
-                end_page=params.end_page,
-                formula_enable=params.formula_enable,
-                table_enable=params.table_enable,
-            )
+            parse_kwargs = {
+                "lang": params.lang,
+                "backend": params.backend,
+                "parse_method": params.parse_method,
+                "server_url": params.server_url,
+                "start_page": params.start_page or 0,
+                "end_page": params.end_page,
+                "formula_enable": params.formula_enable,
+                "table_enable": params.table_enable,
+            }
+
+            if params.backend == "vlm-mlx-engine":
+                async with self._get_mlx_lock():
+                    mineru_outputs = await asyncio.to_thread(
+                        adapter.parse_from_bytes,
+                        normalized_files,
+                        **parse_kwargs,
+                    )
+            else:
+                mineru_outputs = await asyncio.to_thread(
+                    adapter.parse_from_bytes,
+                    normalized_files,
+                    **parse_kwargs,
+                )
         except MineruUnavailableError as exc:
             logger.warning(f"Miner-U unavailable: {exc}")
             raise HTTPException(
                 status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
                 detail=str(exc),
             ) from exc
+        except (AssertionError, RuntimeError) as exc:
+            message = str(exc)
+            if params.backend == "vlm-mlx-engine" and "mtlcommandbuffer" in message.lower():
+                logger.error("MLX backend failed due to Metal command buffer error; advise using transformers/pipeline backend")
+                raise HTTPException(
+                    status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                    detail=(
+                        "MLX backend crashed on Apple Metal; retry with backend=vlm-transformers or backend=pipeline"
+                    ),
+                ) from exc
+            logger.exception("Miner-U parse failed")
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Parse failed") from exc
         except HTTPException:
             raise
         except Exception as exc:  # noqa: BLE001

@@ -24,6 +24,7 @@ yarn-error.log*
 
 # Env & secrets
 .env
+.env.*
 .envrc
 
 # Editors & OS

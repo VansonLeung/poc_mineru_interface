@@ -1,27 +1,52 @@
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:19833';
 
 export async function parseFiles(files, options = {}) {
+  const {
+    lang,
+    parseMethod,
+    backend,
+    serverUrl,
+    startPage,
+    endPage,
+    formulaEnable,
+    tableEnable,
+    timeoutMs = 180_000, // allow up to 180s for multi-file parses
+  } = options;
+
   const formData = new FormData();
   files.forEach((file) => formData.append('files', file));
 
-  if (options.lang) formData.append('lang', options.lang);
-  if (options.parseMethod) formData.append('parse_method', options.parseMethod);
-  if (options.backend) formData.append('backend', options.backend);
-  if (options.serverUrl) formData.append('server_url', options.serverUrl);
-  if (typeof options.startPage === 'number') formData.append('start_page', String(options.startPage));
-  if (typeof options.endPage === 'number') formData.append('end_page', String(options.endPage));
-  if (typeof options.formulaEnable === 'boolean') formData.append('formula_enable', String(options.formulaEnable));
-  if (typeof options.tableEnable === 'boolean') formData.append('table_enable', String(options.tableEnable));
+  if (lang) formData.append('lang', lang);
+  if (parseMethod) formData.append('parse_method', parseMethod);
+  if (backend) formData.append('backend', backend);
+  if (serverUrl) formData.append('server_url', serverUrl);
+  if (typeof startPage === 'number') formData.append('start_page', String(startPage));
+  if (typeof endPage === 'number') formData.append('end_page', String(endPage));
+  if (typeof formulaEnable === 'boolean') formData.append('formula_enable', String(formulaEnable));
+  if (typeof tableEnable === 'boolean') formData.append('table_enable', String(tableEnable));
 
-  const response = await fetch(`${API_BASE_URL}/api/v1/parse`, {
-    method: 'POST',
-    body: formData,
-  });
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
 
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(errorText || 'Upload failed');
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/v1/parse`, {
+      method: 'POST',
+      body: formData,
+      signal: controller.signal,
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(errorText || 'Upload failed');
+    }
+
+    return await response.json();
+  } catch (err) {
+    if (err?.name === 'AbortError') {
+      throw new Error(`Request timed out after ${Math.round(timeoutMs / 1000)}s`);
+    }
+    throw err;
+  } finally {
+    clearTimeout(timeoutId);
   }
-
-  return response.json();
 }
