@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { marked } from 'marked';
-import { parseFiles } from '../services/api.js';
+import { parseFiles, submitAsyncJob, pollJobStatus } from '../services/api.js';
 
 export default function UploadForm() {
   const [selectedFiles, setSelectedFiles] = useState([]);
@@ -11,6 +11,8 @@ export default function UploadForm() {
   const [serverUrl, setServerUrl] = useState('');
   const [parseMethod, setParseMethod] = useState('auto');
   const [activeTabs, setActiveTabs] = useState({});
+  const [asyncMode, setAsyncMode] = useState(false);
+  const [jobStatus, setJobStatus] = useState(null);
   const inputRef = useRef(null);
 
   const handleFiles = useCallback((fileList) => {
@@ -42,13 +44,47 @@ export default function UploadForm() {
     setIsUploading(true);
     setError(null);
     setResults([]);
+    setJobStatus(null);
+
     try {
-      const response = await parseFiles(selectedFiles, {
-        parseMethod,
-        backend,
-        serverUrl: backend === 'vlm-http-client' ? serverUrl : undefined,
-      });
-      setResults(response.outputs || []);
+      if (asyncMode) {
+        // Async mode: submit job and poll for completion
+        const jobResponse = await submitAsyncJob(selectedFiles, {
+          parseMethod,
+          backend,
+          serverUrl: backend === 'vlm-http-client' ? serverUrl : undefined,
+        });
+
+        setJobStatus({
+          job_id: jobResponse.job_id,
+          status: jobResponse.status,
+          created_at: jobResponse.created_at,
+        });
+
+        // Poll for completion
+        const finalJob = await pollJobStatus(jobResponse.job_id, {
+          intervalMs: 5000,
+          maxAttempts: 120,
+          onStatusChange: (job) => {
+            setJobStatus({
+              job_id: job.job_id,
+              status: job.status,
+              created_at: job.created_at,
+              completed_at: job.completed_at,
+            });
+          },
+        });
+
+        setResults(finalJob.outputs || []);
+      } else {
+        // Sync mode: wait for immediate response
+        const response = await parseFiles(selectedFiles, {
+          parseMethod,
+          backend,
+          serverUrl: backend === 'vlm-http-client' ? serverUrl : undefined,
+        });
+        setResults(response.outputs || []);
+      }
     } catch (err) {
       setError(err.message || 'Upload failed');
     } finally {
@@ -148,6 +184,17 @@ export default function UploadForm() {
           </select>
         </div>
 
+        <div className="field">
+          <label>
+            <input
+              type="checkbox"
+              checked={asyncMode}
+              onChange={(e) => setAsyncMode(e.target.checked)}
+            />
+            {' '}Async Mode (background processing with status polling)
+          </label>
+        </div>
+
         {selectedFiles.length > 0 && (
           <ul className="file-list">
             {selectedFiles.map((file) => (
@@ -164,9 +211,27 @@ export default function UploadForm() {
 
         {isUploading && selectedFiles.length > 0 && (
           <div className="status">
-            {selectedFiles.map((file) => (
-              <p key={file.name}>Uploading {file.name}…</p>
-            ))}
+            {asyncMode ? (
+              <>
+                {!jobStatus && <p>Submitting job...</p>}
+                {jobStatus && (
+                  <div>
+                    <p><strong>Job ID:</strong> {jobStatus.job_id}</p>
+                    <p><strong>Status:</strong> {jobStatus.status}</p>
+                    <p><strong>Created:</strong> {new Date(jobStatus.created_at).toLocaleString()}</p>
+                    {jobStatus.completed_at && (
+                      <p><strong>Completed:</strong> {new Date(jobStatus.completed_at).toLocaleString()}</p>
+                    )}
+                    {jobStatus.status === 'PENDING' && <p>⏳ Job queued, waiting to start...</p>}
+                    {jobStatus.status === 'PROCESSING' && <p>⚙️ Processing files...</p>}
+                  </div>
+                )}
+              </>
+            ) : (
+              selectedFiles.map((file) => (
+                <p key={file.name}>Uploading {file.name}…</p>
+              ))
+            )}
           </div>
         )}
 

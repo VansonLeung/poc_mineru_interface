@@ -253,6 +253,15 @@ main.page {
 .field label {
   font-weight: 600;
   color: #0f172a;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+}
+
+.field label input[type="checkbox"] {
+  width: auto;
+  cursor: pointer;
 }
 
 .field input,
@@ -291,9 +300,24 @@ main.page {
 }
 
 .status {
-  margin-top: 0.25rem;
+  margin-top: 0.5rem;
+  padding: 1rem;
+  background: #f1f5f9;
+  border-radius: 8px;
   color: #0f172a;
   font-size: 0.95rem;
+}
+
+.status p {
+  margin: 0.5rem 0;
+}
+
+.status p:first-child {
+  margin-top: 0;
+}
+
+.status p:last-child {
+  margin-bottom: 0;
 }
 
 .error {
